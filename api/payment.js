@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     // PayHero API Credentials
     const API_USERNAME = process.env.PAYHERO_USERNAME || 'In4zPhQySfqJUybAylQg';
     const API_PASSWORD = process.env.PAYHERO_PASSWORD || 'U0BIv2Z5RUoqh5opWgQLH9ozKMPayb8nnHpENtB3';
-    const ACCOUNT_ID = process.env.PAYHERO_ACCOUNT_ID || '3844';
+    const ACCOUNT_ID = process.env.PAYHERO_ACCOUNT_ID || '4519';  // Changed to 4519
 
     console.log('Credentials loaded:');
     console.log('- Username:', API_USERNAME);

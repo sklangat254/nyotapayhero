@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayHero API Direct Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        h1 {
+            color: #4ec9b0;
+        }
+        .test-section {
+            background: #252526;
+            border: 1px solid #3e3e42;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        button:disabled {
+            background: #3e3e42;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .success {
+            background: #1e3a1e;
+            border: 1px solid #4ec9b0;
+            color: #4ec9b0;
+        }
+        .error {
+            background: #3a1e1e;
+            border: 1px solid #f48771;
+            color: #f48771;
+        }
+        .info {
+            background: #1e2a3a;
+            border: 1px solid #569cd6;
+            color: #569cd6;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        code {
+            background: #1e1e1e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #ce9178;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 PayHero API Direct Test</h1>
+    <p>This page tests the PayHero API connection directly from your browser.</p>
+
+    <div class="test-section">
+        <h3>Test 1: API Endpoint Reachability</h3>
+        <p>Tests if we can reach <code>backend.payhero.co.ke</code></p>
+        <button onclick="testEndpoint()">Run Test</button>
+        <div id="test1Result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 2: Direct PayHero API Call</h3>
+        <p>Makes actual API call with your credentials</p>
+        <p><strong>Channel ID:</strong> 4519 (Till: 6253624)</p>
+        <button onclick="testPayHeroAPI()">Run Test</button>
+        <div id="test2Result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Test 3: Through Vercel Function</h3>
+        <p>Tests via the <code>/api/test</code> endpoint</p>
+        <button onclick="testVercelEndpoint()">Run Test</button>
+        <div id="test3Result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>Configuration</h3>
+        <div class="result info">
+Username: In4zPhQySfqJUybAylQg
+Password: U0BIv2Z5RUoqh5opWgQLH9ozKMPayb8nnHpENtB3
+Channel ID: 4519
+Till Number: 6253624
+Test Phone: 254705809731
+Test Amount: 1 KES
+        </div>
+    </div>
+
+    <script>
+        async function testEndpoint() {
+            const resultDiv = document.getElementById('test1Result');
+            resultDiv.innerHTML = '<div class="result info">Testing... <span class="spinner"></span></div>';
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch('https://backend.payhero.co.ke/api/v2/payments', {
+                    method: 'OPTIONS'
+                });
+                const endTime = Date.now();
+
+                resultDiv.innerHTML = `
+                    <div class="result success">
+✅ Endpoint is reachable!
+Status: ${response.status}
+Response Time: ${endTime - startTime}ms
+Headers: ${response.headers.get('access-control-allow-origin') || 'No CORS headers'}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Cannot reach endpoint
+Error: ${error.message}
+Type: ${error.name}
+
+This suggests network connectivity issues.
+                    </div>
+                `;
+            }
+        }
+
+        async function testPayHeroAPI() {
+            const resultDiv = document.getElementById('test2Result');
+            resultDiv.innerHTML = '<div class="result info">Calling PayHero API... <span class="spinner"></span></div>';
+
+            const credentials = btoa('In4zPhQySfqJUybAylQg:U0BIv2Z5RUoqh5opWgQLH9ozKMPayb8nnHpENtB3');
+            const payload = {
+                amount: 1,
+                phone_number: '254705809731',
+                channel_id: 4519,
+                provider: 'mpesa',
+                external_reference: 'TEST' + Date.now()
+            };
+
+            try {
+                const startTime = Date.now();
+                const response = await fetch('https://backend.payhero.co.ke/api/v2/payments', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + credentials,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const endTime = Date.now();
+                const contentType = response.headers.get('content-type');
+                const responseText = await response.text();
+
+                let result = `
+Status: ${response.status} ${response.statusText}
+Response Time: ${endTime - startTime}ms
+Content-Type: ${contentType}
+
+Request Sent:
+${JSON.stringify(payload, null, 2)}
+
+Response Received:
+${responseText}
+                `;
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="result success">✅ API Call Successful!\n\n${result}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="result error">❌ API Call Failed\n\n${result}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Request Failed
+Error: ${error.message}
+Type: ${error.name}
+Stack: ${error.stack}
+                    </div>
+                `;
+            }
+        }
+
+        async function testVercelEndpoint() {
+            const resultDiv = document.getElementById('test3Result');
+            resultDiv.innerHTML = '<div class="result info">Testing Vercel endpoint... <span class="spinner"></span></div>';
+
+            try {
+                const response = await fetch('/api/test');
+                const contentType = response.headers.get('content-type');
+                const text = await response.text();
+
+                let result;
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        result = JSON.parse(text);
+                        resultDiv.innerHTML = `
+                            <div class="result success">
+✅ Vercel Endpoint Working!
+
+${JSON.stringify(result, null, 2)}
+                            </div>
+                        `;
+                    } catch (e) {
+                        resultDiv.innerHTML = `
+                            <div class="result error">
+❌ Response is not valid JSON
+
+Content-Type: ${contentType}
+Response: ${text}
+                            </div>
+                        `;
+                    }
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+❌ Expected JSON, got ${contentType}
+
+This means /api/test endpoint is not working correctly.
+Possible routing issue in Vercel.
+
+Response: ${text.substring(0, 500)}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+❌ Vercel Endpoint Failed
+Error: ${error.message}
+
+This means the /api/test route is not accessible.
+Check Vercel deployment logs.
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

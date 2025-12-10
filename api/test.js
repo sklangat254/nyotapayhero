@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       },
       credentials: {
         username: process.env.PAYHERO_USERNAME || 'In4zPhQySfqJUybAylQg',
-        accountId: process.env.PAYHERO_ACCOUNT_ID || '3844',
+        accountId: process.env.PAYHERO_ACCOUNT_ID || '4519',
         passwordSet: !!(process.env.PAYHERO_PASSWORD || 'U0BIv2Z5RUoqh5opWgQLH9ozKMPayb8nnHpENtB3')
       },
       tests: []
@@ -54,6 +54,17 @@ export default async function handler(req, res) {
 
       const endTime = Date.now();
       const responseText = await response.text();
+      
+      // Try to parse as JSON, but handle if it's not JSON
+      let parsedResponse = null;
+      let isJson = false;
+      try {
+        parsedResponse = JSON.parse(responseText);
+        isJson = true;
+      } catch (e) {
+        // Not JSON, that's okay - we'll show the raw text
+        parsedResponse = responseText.substring(0, 200);
+      }
 
       testResults.tests.push({
         name: 'PayHero API Connectivity',
@@ -61,7 +72,9 @@ export default async function handler(req, res) {
         statusText: response.statusText,
         ok: response.ok,
         responseTime: endTime - startTime + 'ms',
-        response: responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''),
+        isJson: isJson,
+        contentType: response.headers.get('content-type'),
+        response: isJson ? parsedResponse : responseText.substring(0, 200) + (responseText.length > 200 ? '...' : ''),
         passed: response.status < 500
       });
 
