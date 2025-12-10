@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYOTA Fund - Quick Loans via M-Pesa</title>
+    <title>NYOTA Fund - Quick Loans via M-Pesa (DEBUG)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,6 +19,7 @@
             --white: #ffffff;
             --success: #27ae60;
             --error: #e74c3c;
+            --warning: #f39c12;
             --border: #e0e6ed;
         }
 
@@ -100,6 +101,36 @@
             font-size: 14px;
         }
 
+        .debug-badge {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .test-button {
+            width: 100%;
+            padding: 12px;
+            background: var(--warning);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        }
+
         .info-box {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 16px;
@@ -125,10 +156,6 @@
         .info-box p {
             font-size: 13px;
             opacity: 0.9;
-        }
-
-        .form-section {
-            margin-bottom: 25px;
         }
 
         .form-group {
@@ -260,6 +287,7 @@
             font-size: 14px;
             display: none;
             animation: slideIn 0.3s ease;
+            line-height: 1.5;
         }
 
         @keyframes slideIn {
@@ -287,29 +315,22 @@
             display: block;
         }
 
-        .features {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
+        .message.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid var(--warning);
+            display: block;
         }
 
-        .feature {
-            flex: 1;
-            text-align: center;
-            padding: 12px 8px;
-            background: var(--bg);
-            border-radius: 10px;
+        .debug-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
             font-size: 12px;
-        }
-
-        .feature-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .feature-text {
-            color: var(--text);
-            font-weight: 600;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
         }
 
         .clear-storage {
@@ -357,7 +378,12 @@
                 </div>
                 <h1>NYOTA FUND</h1>
                 <p>Quick loans via M-Pesa</p>
+                <span class="debug-badge">DEBUG MODE</span>
             </div>
+
+            <button class="test-button" onclick="testConnection()">
+                🔍 Test API Connection
+            </button>
 
             <div class="info-box">
                 <h3>Loan Amount</h3>
@@ -365,66 +391,47 @@
                 <p>Test payment amount</p>
             </div>
 
-            <div class="features">
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <div class="feature-text">Instant</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">🔒</div>
-                    <div class="feature-text">Secure</div>
-                </div>
-                <div class="feature">
-                    <div class="feature-icon">📱</div>
-                    <div class="feature-text">M-Pesa</div>
-                </div>
-            </div>
-
             <form id="loanForm">
-                <div class="form-section">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <div class="input-wrapper">
-                            <span class="input-icon">👤</span>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                name="name" 
-                                placeholder="Enter your full name"
-                                required
-                            >
-                        </div>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            placeholder="Enter your full name"
+                            required
+                        >
                     </div>
+                </div>
 
-                    <div class="form-group">
-                        <label for="phone">Phone Number (M-Pesa)</label>
-                        <div class="input-wrapper">
-                            <span class="input-icon">📱</span>
-                            <input 
-                                type="tel" 
-                                id="phone" 
-                                name="phone" 
-                                placeholder="0712345678"
-                                required
-                            >
-                        </div>
-                        <div class="phone-note" id="phoneNote">
-                            <!-- Will show storage status here -->
-                        </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number (M-Pesa)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📱</span>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            placeholder="0705809731"
+                            required
+                        >
                     </div>
+                    <div class="phone-note" id="phoneNote"></div>
+                </div>
 
-                    <div class="form-group">
-                        <label for="amount">Amount (Auto-generated)</label>
-                        <div class="input-wrapper">
-                            <span class="input-icon">💰</span>
-                            <input 
-                                type="number" 
-                                id="amount" 
-                                name="amount" 
-                                value="10"
-                                disabled
-                            >
-                        </div>
+                <div class="form-group">
+                    <label for="amount">Amount (Auto-generated)</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">💰</span>
+                        <input 
+                            type="number" 
+                            id="amount" 
+                            name="amount" 
+                            value="10"
+                            disabled
+                        >
                     </div>
                 </div>
 
@@ -454,11 +461,9 @@
             const phoneInput = document.getElementById('phone');
             const phoneNote = document.getElementById('phoneNote');
             
-            // Get stored phone number
             const storedPhone = localStorage.getItem('nyota_phone');
             
             if (storedPhone) {
-                // Format and display stored phone
                 phoneInput.value = storedPhone;
                 phoneNote.innerHTML = `
                     <span class="stored-badge">✓ SAVED</span>
@@ -486,14 +491,9 @@
             `;
         }
 
-        // Set random amount (currently using KES 10 for testing)
+        // Set random amount
         function setRandomAmount() {
-            // For testing, using fixed amount
             const testAmount = 10;
-            
-            // Uncomment below for random amounts in production:
-            // const randomAmount = Math.floor(Math.random() * (5000 - 100 + 1)) + 100;
-            
             document.getElementById('amount').value = testAmount;
             document.getElementById('loanAmount').textContent = `KES ${testAmount}`;
         }
@@ -503,7 +503,6 @@
         phoneInput.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
             
-            // Handle different phone number formats
             if (value.startsWith('254')) {
                 // Already in correct format
             } else if (value.startsWith('0')) {
@@ -515,6 +514,35 @@
             e.target.value = value;
         });
 
+        // Test API connection
+        async function testConnection() {
+            const message = document.getElementById('message');
+            message.textContent = 'Testing API connection...';
+            message.className = 'message warning';
+            message.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/test');
+                const result = await response.json();
+
+                if (result.success) {
+                    message.textContent = '✅ API Connection Test Results:';
+                    message.className = 'message success';
+                    
+                    const debugDiv = document.createElement('div');
+                    debugDiv.className = 'debug-info';
+                    debugDiv.textContent = JSON.stringify(result.results, null, 2);
+                    message.appendChild(debugDiv);
+                } else {
+                    message.textContent = '❌ Test failed: ' + result.error;
+                    message.className = 'message error';
+                }
+            } catch (error) {
+                message.textContent = '❌ Test failed: ' + error.message;
+                message.className = 'message error';
+            }
+        }
+
         // Form submission
         const form = document.getElementById('loanForm');
         form.addEventListener('submit', async (e) => {
@@ -523,7 +551,6 @@
             const submitBtn = document.getElementById('submitBtn');
             const message = document.getElementById('message');
             
-            // Get form data
             const formData = {
                 name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
@@ -539,6 +566,8 @@
             message.style.display = 'none';
             message.className = 'message';
 
+            console.log('Submitting payment request:', formData);
+
             try {
                 const response = await fetch('/api/payment', {
                     method: 'POST',
@@ -548,24 +577,35 @@
                     body: JSON.stringify(formData)
                 });
 
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
                 const result = await response.json();
+                console.log('Response data:', result);
 
                 if (result.success) {
                     message.textContent = result.message || 'Payment request sent! Check your phone for M-Pesa prompt.';
-                    message.classList.add('success');
+                    message.className = 'message success';
                     message.style.display = 'block';
                     
-                    // Clear name field but keep phone
                     document.getElementById('name').value = '';
                 } else {
-                    message.textContent = result.message || 'Payment failed. Please try again.';
-                    message.classList.add('error');
+                    message.textContent = '❌ ' + (result.message || 'Payment failed. Please try again.');
+                    message.className = 'message error';
                     message.style.display = 'block';
+
+                    // Show debug info if available
+                    if (result.debug) {
+                        const debugDiv = document.createElement('div');
+                        debugDiv.className = 'debug-info';
+                        debugDiv.textContent = JSON.stringify(result.debug, null, 2);
+                        message.appendChild(debugDiv);
+                    }
                 }
             } catch (error) {
                 console.error('Payment error:', error);
-                message.textContent = 'Connection error. Please check your internet and try again.';
-                message.classList.add('error');
+                message.textContent = '❌ Connection error: ' + error.message + '. Please check your internet and try again.';
+                message.className = 'message error';
                 message.style.display = 'block';
             } finally {
                 submitBtn.disabled = false;
